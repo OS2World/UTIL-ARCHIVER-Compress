@@ -1,0 +1,135 @@
+NAME
+     compress, uncompress, zcat  -  compress and uncompress files
+
+SYNOPSIS
+     compress [ -c ] [ -C ] [ -d ] [ -f ] [ -v ] [ -b bits ] [ filename
+     ... ]
+     uncompress [ -c ] [ -f ] [ -v ] [ -V ] [ filename ... ]
+     zcat [ filename ... ]
+
+DESCRIPTION
+     Compresses the specified files or standard input.  Each file
+     is replaced by a file with the extension .Z, but only if the
+     file got smaller.  If no files are specified, the compres-
+     sion is applied to the standard input and is written to
+     standard output regardless of the results.  Compressed files
+     can be restored to their original form by specifying the -d
+     option, or by running uncompress (linked to compress), on
+     the .Z files or the standard input.
+
+     If the output file exists, it will not be overwritten unless
+     the -f flag is given.  If -f is not specified and compress
+     is run in the foreground, the user is prompted as to whether
+     the file should be overwritten.
+
+     If the -f flag is given, all files specified are replaced
+     with .Z files - even if the file didn't get smaller.
+
+     When file names are given, the ownership (if run by root),
+     modes, accessed and modified times are maintained between
+     the file and its .Z version.  In this respect, compress can
+     be used for archival purposes, yet can still be used with
+     make(1) after uncompression.
+
+     The -c option causes the results of the compress/uncompress
+     operation to be written to stdout; no files are changed.
+     The zcat program is the same as specifying -c to uncompress
+     (all files are unpacked and written to stdout).
+
+     Compress uses the modified Lempel-Ziv algorithm described in
+     "A Technique for High Performance Data Compression", Terry
+     A. Welch, IEEE Computer Vol 17, No 6 (June 1984), pp 8-19.
+     Common substrings in the file are first replaced by 9-bit
+     codes 257 and up.  When code 512 is reached, the algorithm
+     switches to 10-bit codes and continues to use more bits
+     until the bits limit as specified by the -b flag is reached
+     (default 16).  Bits must be between 9 and 16.  The default
+     can be changed in the source to allow compress to be run on
+     a smaller machine.
+
+     After the bits limit is reached, compress periodically
+     checks the compression ratio.  If it is increasing, compress
+     continues to use the codes that were previously found in the
+     file.  However, if the compression ratio decreases, compress
+     discards the table of substrings and rebuilds it from
+     scratch.  This allows the algorithm to adapt to the next
+     "block" of the file.  The -C (compatibility) flag prevents
+     subdivision of the file into blocks; this produces an output
+     file that old versions of compress can read.
+
+     A two byte magic number is prepended to the file to ensure
+     that neither uncompression of random text nor recompression
+     of compressed text are attempted.  In addition, the bits
+     specified during compress is written to the file so that the
+     -b flag can be omitted for uncompress.
+
+     The amount of compression obtained depends on the size of
+     the input file, the amount of bits per code, and the distri-
+     bution of character substrings.  Typically, text files, such
+     as C programs, are reduced by 50-60%.  Compression is gen-
+     erally much better than that achieved by Huffman coding (as
+     used in pack), or adaptive Huffman coding (compact), and
+     takes less time to compute.
+
+     If the -v (verbose) flag is given, then after each file is
+     compressed, a message is printed giving the percentage of
+     the input file that has been saved by compression.
+
+     If the -V (version) flag is given, the program's version
+     number is printed.
+
+     The exit status is normally 0; if the last file gets bigger
+     after compression, the exit status is 2; if an error occurs,
+     the exit status is 1.
+
+SEE ALSO
+     compact(1), pack(1)
+
+DIAGNOSTICS
+     Usage: compress [-cCdfvV] [-b maxbits] [file ...]
+             Invalid options were specified on the command line.
+     Missing maxbits
+             Maxbits must follow -b.
+     Unknown flag: 'x';
+             Invalid flags were specified on the command line.
+     file: not in compressed format
+             The specified file has not been compressed.
+     file: compressed with xx bits, can only handle yy bits
+             The specified file was compressed by a compress pro-
+             gram that could handle more bits than the current
+             compress program.  Recompress the file with a
+             smaller bits.
+     file: already has .Z suffix -- no change
+             Cannot compress a file that has a ".Z" suffix.
+             mv(1) the file to a different name and try again.
+
+     file: filename too long to tack on .Z
+             The specified file cannot be compressed because its
+             filename is longer than 12 characters.  mv(1) the
+             file to a different name and try again.  This mes-
+             sage does not occur on 4.2BSD systems.
+     file already exists; do you wish to overwrite (y or n)?
+             Respond "y" if you want the output file to be
+             replaced; "n" if you want it to be left alone.
+     file:
+             This message fragment is written during the process-
+             ing of a file.
+     Compression: xx.xx%
+             This message fragment gives the percentage of the
+             input file that has been saved by compression.
+     -- not a regular file: unchanged
+             This message fragment is written when the input file
+             is not a regular file.  The input file is left
+             unchanged.
+     -- has xx other links: unchanged
+             This message fragment is written when the input file
+             has links.  The input file is left unchanged.  See
+             ln(1) for more information.
+     -- file unchanged
+             This message fragment is written when no savings are
+             achieved by compression.  The input file is left
+             unchanged.
+     -- replaced with file
+             This message fragment is written when a file has
+             been sucessfully compressed/uncompressed.
+
